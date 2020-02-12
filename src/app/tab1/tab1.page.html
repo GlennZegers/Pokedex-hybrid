@@ -1,0 +1,32 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Pokedex
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- <ion-header collapse="condense" style="background: #ffffff;">
+    <ion-toolbar>
+      <ion-title size="large">Pokedex</ion-title>
+    </ion-toolbar>
+  </ion-header> -->
+
+  <ion-list>
+    <ion-item *ngFor="let poke of pokemon;" [routerLink]="poke.pokeIndex">
+      <ion-avatar slot="start">
+        <img [src]="poke.image" style="background: #ffffff;">
+      </ion-avatar>
+      <ion-label class="ion-text-capitalize">
+        <h2>{{poke.name}}</h2>
+        <p># {{poke.pokeIndex}}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+  <ion-infinite-scroll (ionInfinite)="loadPokemon(true, $event)">
+    <ion-infinite-scroll-content  loadingSpinner="bubbles" loadingText="Loading more Pokemon...">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+</ion-content>
