@@ -19,7 +19,7 @@ export class PokemonService{
               'Content-Type': 'application/json',
               'Access-Control-Allow-Origin': '*'
             }),
-          };
+          };          
         return this.http.get(`${this.baseURL}/pokemon?offset=${offset}&limit=25`, httpOptions).pipe(
             map(result=>{
                 return result['results']
@@ -36,5 +36,15 @@ export class PokemonService{
 
     getPokemonImage(index){
         return `${this.imageURL}${index}.png`
+    }
+
+    getSinglePokemon(id){
+        let httpOptions = {
+            headers: new HttpHeaders({
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*'
+            }),
+        }
+        return this.http.get(`${this.baseURL}/pokemon/${id}`, httpOptions);
     }
 }

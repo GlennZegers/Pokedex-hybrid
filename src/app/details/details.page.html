@@ -1,0 +1,33 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{pokemon.name}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="container">
+    <img src={{image}}>
+
+    <div class="info">
+        <div class="info-item">
+          <span class="info-name">Weight</span>
+          <span class="info-value">{{pokemon.weight / 10}} kg</span>
+        </div>
+        <div class="info-item">
+          <span class="info-name">Height</span>
+          <span class="info-value">{{pokemon.height / 10}} m</span>
+        </div>
+        <div *ngFor="let type of pokemon.types; let i = index" class="info-item">
+          <span class="info-name">Type {{i + 1}}</span>
+          <span class="info-value">{{type.type.name}}</span>
+        </div>
+    </div>
+
+    <div class="stats">
+      <div *ngFor="let stat of pokemon.stats;" class="stat">
+        <span class="stat-name">{{stat.stat.name}}</span>
+        <span>{{stat.base_stat}}</span>
+      </div>
+    </div>
+  </div>
+</ion-content>

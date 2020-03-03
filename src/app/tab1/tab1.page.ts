@@ -30,8 +30,8 @@ export class Tab1Page implements OnInit{
       event.target.complete();
     }
 
-    if(this.offset === 125){
-      this.infinite.disabled = true;
-    }
+    // if(this.offset === 125){
+    //   this.infinite.disabled = true;
+    // }
   }
 }
