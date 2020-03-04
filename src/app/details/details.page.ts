@@ -17,12 +17,13 @@ export class DetailsPage implements OnInit {
 
   ngOnInit() {
     this.id = parseInt(document.URL.split('/')[document.URL.split('/').length - 1])
-    this.pokeService.getSinglePokemon(this.id).subscribe(res=>{
-      this.pokemon = res
-      console.log(this.pokemon);
-      
-    })
-    this.image=this.pokeService.getPokemonImage(this.id);
+    if(this.id <= 964){
+      this.pokeService.getSinglePokemon(this.id).subscribe(res=>{
+        this.pokemon = res
+        this.image=this.pokeService.getFullPokemonImage(this.pokemon["name"]);
+      })
+    }else{
+      this.pokemon = this.pokeService.getSingleAddedPokemon(this.id)
+    }
   }
-
 }
