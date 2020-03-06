@@ -4,7 +4,6 @@ import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@io
 import { Map, latLng, tileLayer, Layer, marker } from 'leaflet';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { JsonPipe } from '@angular/common';
 
 @Component({
 	selector: 'app-tab2',
@@ -12,9 +11,8 @@ import { JsonPipe } from '@angular/common';
 	styleUrls: ['tab2.page.scss']
 })
 export class Tab2Page {
-	latitude;
-	longitude;
 	map: Map;
+	marker: any;
 	pokemonCoords = [
 		{ 'Latitude': 51.824889999999996, 'Longtitude': 4.8799534, 'Pokemon': 'Snorlax' },
 		{ 'Latitude': 51.82490070000001, 'Longtitude': 4.880012499999999, 'Pokemon': 'Pikachu' }
@@ -26,6 +24,7 @@ export class Tab2Page {
 	ionViewDidEnter() {
 		this.watchLocation().subscribe(data => {
 			this.loadmap(data.coords.latitude, data.coords.longitude);
+			this.checkCoordsWithPokemon(data.coords.latitude, data.coords.longitude);
 		})
 	}
 
@@ -52,11 +51,8 @@ export class Tab2Page {
 		let watch = this.geolocation.watchPosition();
 		return watch.pipe(
 			map(data => {
-				// this.latitude = data.coords.latitude
-				// this.longitude = data.coords.longitude
-
 				this.checkCoordsWithPokemon(data.coords.latitude, data.coords.longitude);
-				this.convertGeocodeToAdress(data.coords.latitude, data.coords.latitude);
+				//this.convertGeocodeToAdress(data.coords.latitude, data.coords.longitude);
 
 				return data;
 			})
@@ -65,11 +61,28 @@ export class Tab2Page {
 
 	checkCoordsWithPokemon(latitude: number, longitude: number) {
 		this.pokemonCoords.forEach(coord => {
-			if (coord.Latitude == latitude && coord.Longtitude == longitude) {
+			var minLat = latitude - 2
+			var maxLat = latitude + 2
+			var minLon = longitude - 2
+			var maxLon = longitude + 2
+
+			if (coord.Latitude >= minLat && coord.Latitude <= maxLat && coord.Longtitude >= minLon && coord.Longtitude <= maxLon) {
 				var today = new Date();
 				var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
 				console.log(time + " " + coord.Pokemon)
+
+				// if (this.map != null) {
+				// 	this.addMarker(coord.Latitude, coord.Longtitude);
+				// }
 			}
+		});
+	}
+
+	addMarker(latitude: number, longitude: number) {
+		this.map.locate({ setView: true }).on("locationfound", (e: any) => {
+			this.marker = marker([latitude, latitude], {draggable: 
+				false}).addTo(this.map);
+			this.marker.bindPopup("You are located here!").openPopup();
 		});
 	}
 
