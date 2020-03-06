@@ -3,6 +3,8 @@ import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
 import { Map, latLng, tileLayer, Layer, marker } from 'leaflet';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { JsonPipe } from '@angular/common';
 
 @Component({
 	selector: 'app-tab2',
@@ -19,24 +21,18 @@ export class Tab2Page {
 	]
 
 	constructor(private geolocation: Geolocation, private nativeGeocoder: NativeGeocoder) {
-		//this.getCurrentLocation();
-		this.watchLocation();
 	}
 
 	ionViewDidEnter() {
-		// this.watchLocation().subscribe((data) => {
-		// 	console.log(data)
-		// 	this.loadmap(data.latitude, data.longitude);
-		// })
-		this.loadmap();
+		this.watchLocation().subscribe(data => {
+			this.loadmap(data.coords.latitude, data.coords.longitude);
+		})
 	}
 
-	loadmap() { //(latitude: number, longitude: number)
-		// while (this.latitude == null || this.longitude == null) {
-
-		// }
-		//this.map = new Map('map').setView([latitude, longitude], 7);
-		this.map = new Map('map').setView([46.879966, -121.726909], 7);
+	loadmap(latitude: number, longitude: number) {
+		if (this.map == null) {
+			this.map = new Map('map').setView([latitude, longitude], 17);
+		}
 
 		tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 			attribution:
@@ -52,31 +48,29 @@ export class Tab2Page {
 		});
 	}
 
-		watchLocation() { //: Observable<Coordinates> => {
+	watchLocation() {
 		let watch = this.geolocation.watchPosition();
-		watch.subscribe((data) => {
-			this.latitude = data.coords.latitude
-			this.longitude = data.coords.longitude
+		return watch.pipe(
+			map(data => {
+				// this.latitude = data.coords.latitude
+				// this.longitude = data.coords.longitude
 
-			this.pokemonCoords.forEach(coord => {
-				if (coord.Latitude == this.latitude && coord.Longtitude == this.longitude) {
-					var today = new Date();
-					var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-					console.log(time + " " + coord.Pokemon)
-				}
-			});
+				this.checkCoordsWithPokemon(data.coords.latitude, data.coords.longitude);
+				this.convertGeocodeToAdress(data.coords.latitude, data.coords.latitude);
 
-			// console.log(this.latitude)
-			// console.log(this.longitude)
+				return data;
+			})
+		);
+	}
 
-			this.convertGeocodeToAdress(data.coords.latitude, data.coords.latitude)
-
-			console.log("return coords")
-			return data.coords;
+	checkCoordsWithPokemon(latitude: number, longitude: number) {
+		this.pokemonCoords.forEach(coord => {
+			if (coord.Latitude == latitude && coord.Longtitude == longitude) {
+				var today = new Date();
+				var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+				console.log(time + " " + coord.Pokemon)
+			}
 		});
-
-		console.log("return null")
-		//return null;
 	}
 
 	convertGeocodeToAdress(latitude, longitude) {
