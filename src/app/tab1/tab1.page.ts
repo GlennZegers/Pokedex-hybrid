@@ -24,6 +24,7 @@ export class Tab1Page implements OnInit{
     }
     this.pokeService.getPokemon(this.offset).subscribe(res=>{
       this.pokemon = [...this.pokemon, ...res]
+      this.pokemon = [...this.pokemon, ...this.pokeService.getAddedPokemon()]
     })
 
     if(event){
