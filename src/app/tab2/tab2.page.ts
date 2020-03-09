@@ -5,8 +5,10 @@ import { Map, latLng, tileLayer, Layer, marker, icon, Marker } from 'leaflet';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-const iconRetinaUrl = '/assets/marker-icon-2x.png';
-const iconUrl = '/assets/marker-icon.png';
+// const iconRetinaUrl = '/assets/marker-icon-2x.png';
+const iconRetinaUrl = '/assets/images/pikachu.png'
+//const iconUrl = '/assets/marker-icon.png';
+const iconUrl = '/assets/images/pikachu.png'
 const shadowUrl = '/assets/marker-shadow.png';
 const iconDefault = icon({
 	iconRetinaUrl,
@@ -112,12 +114,16 @@ export class Tab2Page {
 
 		var newMarker: any;
 
+		//locationfound doet wss niks
 		this.map.locate({ setView: true }).on("locationfound", (e: any) => {
 			newMarker = marker([latitude, longitude], {
 				draggable:
 					false
 			}).addTo(this.map);
 			newMarker.bindPopup(pokemon).openPopup();
+			newMarker.on('click', function(e) {
+				console.log("Gevangen!")
+			  });
 
 		});
 
