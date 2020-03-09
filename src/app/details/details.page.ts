@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { PokemonService } from '../services/pokemon.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-details',
@@ -11,7 +12,7 @@ export class DetailsPage implements OnInit {
   id= 0;
   pokemon={}
   image="";
-  constructor(private pokeService: PokemonService) {
+  constructor(private pokeService: PokemonService, private router: Router) {
 
    }
 
@@ -22,8 +23,16 @@ export class DetailsPage implements OnInit {
         this.pokemon = res
         this.image=this.pokeService.getFullPokemonImage(this.pokemon["name"]);
       })
+      document.getElementById("buttons").style.display="none";
+
     }else{
       this.pokemon = this.pokeService.getSingleAddedPokemon(this.id)
+      
     }
+  }
+
+  delete(){
+    this.pokeService.deletePokemon(this.id)   
+    this.router.navigate(['/'])
   }
 }

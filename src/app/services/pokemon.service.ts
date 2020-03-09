@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {map} from 'rxjs/operators'
+import { Storage } from '@ionic/storage';
 
 @Injectable({
     providedIn: 'root'
@@ -11,8 +12,12 @@ export class PokemonService{
     imageURL= "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/"
     fullImageURL="https://img.pokemondb.net/artwork/"
     addedPokemon=[]
-    constructor(private http: HttpClient){
-        
+    constructor(private http: HttpClient, private storage: Storage){
+        storage.get('addedPokemon').then((val) => {
+            if(val !== null){
+                this.addedPokemon = val
+            }
+        });
     }
 
     getPokemon(offset = 0){
@@ -55,10 +60,8 @@ export class PokemonService{
     }
 
     getSingleAddedPokemon(id){
-        console.log(id)
        for(let i =0; i< this.addedPokemon.length; i++){
            if(this.addedPokemon[i].id === id){
-               console.log("service:", this.addedPokemon[i])
                return this.addedPokemon[i]
            }
        }
@@ -78,10 +81,29 @@ export class PokemonService{
 
     savePokemon(pokemon){
         this.addedPokemon.push(this.parsePokemonToApiFormat(pokemon))
+        this.storage.set('addedPokemon', this.addedPokemon)
+    }
+
+    deletePokemon(id){
+        for(let i =0; i< this.addedPokemon.length; i++){
+            if(this.addedPokemon[i].id === id){
+                this.addedPokemon = this.addedPokemon.slice(i+1,1);
+                this.storage.set('addedPokemon', this.addedPokemon)
+            }
+        }
     }
 
     getAddedPokemon(){
         return this.addedPokemon;
+    }
+
+    updatePokemon(pokemon){
+        for(let i =0; i< this.addedPokemon.length; i++){
+            if(this.addedPokemon[i].id === pokemon.id){
+                this.addedPokemon[i] = this.parsePokemonToApiFormat(pokemon)
+                this.storage.set('addedPokemon', this.addedPokemon)
+            }
+        }
     }
 
     private parsePokemonToApiFormat(pokemon){

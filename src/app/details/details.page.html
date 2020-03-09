@@ -29,5 +29,16 @@
         <span>{{stat.base_stat}}</span>
       </div>
     </div>
+
+    <ion-fab id="buttons">
+      <ion-fab-button (click)="delete()">
+          <ion-icon name="trash"></ion-icon>
+      </ion-fab-button>
+      <ion-fab-button routerLink="/edit/{{id}}">
+          <ion-icon name="create"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+
+  
   </div>
 </ion-content>

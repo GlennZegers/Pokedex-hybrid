@@ -2,6 +2,12 @@ ion-title{
     text-transform: capitalize;
 }
 
+ion-fab{
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+}
+
 .container{
     display: flex;
     align-items: center;

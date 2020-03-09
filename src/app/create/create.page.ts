@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { PokemonService } from '../services/pokemon.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-create',
@@ -50,7 +51,7 @@ export class CreatePage implements OnInit {
     },]
   }
 
-  constructor(private pokeService: PokemonService) {}
+  constructor(private pokeService: PokemonService, private router: Router) {}
 
   ngOnInit() {
     this.pokeService.getTypes().subscribe(res=>{
@@ -61,6 +62,7 @@ export class CreatePage implements OnInit {
   onSubmit(){
     this.generateStats()
     this.pokeService.savePokemon(this.pokemon)
+    this.router.navigate(['/'])
   }
 
   private generateStats(){
