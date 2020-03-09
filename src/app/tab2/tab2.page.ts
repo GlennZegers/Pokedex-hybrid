@@ -1,9 +1,24 @@
 import { Component } from '@angular/core';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
-import { Map, latLng, tileLayer, Layer, marker } from 'leaflet';
+import { Map, latLng, tileLayer, Layer, marker, icon, Marker } from 'leaflet';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+
+const iconRetinaUrl = '/assets/marker-icon-2x.png';
+const iconUrl = '/assets/marker-icon.png';
+const shadowUrl = '/assets/marker-shadow.png';
+const iconDefault = icon({
+	iconRetinaUrl,
+	iconUrl,
+	shadowUrl,
+	iconSize: [25, 41],
+	iconAnchor: [12, 41],
+	popupAnchor: [1, -34],
+	tooltipAnchor: [16, -28],
+	shadowSize: [41, 41]
+});
+Marker.prototype.options.icon = iconDefault;
 
 @Component({
 	selector: 'app-tab2',
@@ -12,10 +27,11 @@ import { map } from 'rxjs/operators';
 })
 export class Tab2Page {
 	map: Map;
-	marker: any;
-	pokemonCoords = [
+	pokemonMarkers: [ { 'Pokemon': null, 'Icon': marker}];
+
+	pokemonCaches = [
 		{ 'Latitude': 51.824889999999996, 'Longtitude': 4.8799534, 'Pokemon': 'Snorlax' },
-		{ 'Latitude': 51.82490070000001, 'Longtitude': 4.880012499999999, 'Pokemon': 'Pikachu' }
+		{ 'Latitude': 51.82290070000001, 'Longtitude': 4.880012499999999, 'Pokemon': 'Pikachu' }
 	]
 
 	constructor(private geolocation: Geolocation, private nativeGeocoder: NativeGeocoder) {
@@ -60,30 +76,52 @@ export class Tab2Page {
 	}
 
 	checkCoordsWithPokemon(latitude: number, longitude: number) {
-		this.pokemonCoords.forEach(coord => {
+		this.pokemonCaches.forEach(cache => {
 			var minLat = latitude - 2
 			var maxLat = latitude + 2
 			var minLon = longitude - 2
 			var maxLon = longitude + 2
 
-			if (coord.Latitude >= minLat && coord.Latitude <= maxLat && coord.Longtitude >= minLon && coord.Longtitude <= maxLon) {
+			if (cache.Latitude >= minLat && cache.Latitude <= maxLat && cache.Longtitude >= minLon && cache.Longtitude <= maxLon) {
 				var today = new Date();
 				var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-				console.log(time + " " + coord.Pokemon)
+				console.log(time + " " + cache.Pokemon)
 
-				// if (this.map != null) {
-				// 	this.addMarker(coord.Latitude, coord.Longtitude);
-				// }
+				if (this.map != null) {
+					this.addMarker(cache.Latitude, cache.Longtitude, cache.Pokemon);
+				}
 			}
 		});
 	}
 
-	addMarker(latitude: number, longitude: number) {
+	addMarker(latitude: number, longitude: number, pokemon: string) {
+		// var pikachuIcon = icon({
+		// 	iconUrl: '/assets/images/pikachu.png',
+		// 	iconSize: [38, 95], // size of the icon
+		// 	iconAnchor: [22, 94], // point of the icon which will correspond to marker's location
+		// 	popupAnchor: [-3, -76] // point from which the popup should open relative to the iconAnchor
+		// });
+
+		if (this.pokemonMarkers != null) {
+			this.pokemonMarkers.forEach(marker => {
+				if (marker.Pokemon == pokemon) {
+					return;
+				}
+			})
+		}
+
+		var newMarker: any;
+
 		this.map.locate({ setView: true }).on("locationfound", (e: any) => {
-			this.marker = marker([latitude, latitude], {draggable: 
-				false}).addTo(this.map);
-			this.marker.bindPopup("You are located here!").openPopup();
+			newMarker = marker([latitude, longitude], {
+				draggable:
+					false
+			}).addTo(this.map);
+			newMarker.bindPopup(pokemon).openPopup();
+
 		});
+
+		//marker([51.5, -0.09], {icon: pikachuIcon}).addTo(map);
 	}
 
 	convertGeocodeToAdress(latitude, longitude) {
