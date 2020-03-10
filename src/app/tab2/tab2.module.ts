@@ -14,7 +14,7 @@ import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
     CommonModule,
     FormsModule,
     ExploreContainerComponentModule,
-    RouterModule.forChild([{ path: '', component: Tab2Page }])
+    RouterModule.forChild([{ path: '', component: Tab2Page }]),
   ],
   declarations: [Tab2Page],
   providers: [

@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
 import { Map, latLng, tileLayer, Layer, marker, icon, Marker } from 'leaflet';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { PokemonService } from '../services/pokemon.service';
 
 // const iconRetinaUrl = '/assets/marker-icon-2x.png';
 const iconRetinaUrl = '/assets/images/pikachu.png'
@@ -29,21 +31,38 @@ Marker.prototype.options.icon = iconDefault;
 })
 export class Tab2Page {
 	map: Map;
-	pokemonMarkers: [ { 'Pokemon': null, 'Icon': marker}];
+	pokemonMarkers: [{ 'Pokemon': string, 'Icon': marker }];
 
+	pokemonCaches2 = [];
 	pokemonCaches = [
 		{ 'Latitude': 51.824889999999996, 'Longtitude': 4.8799534, 'Pokemon': 'Snorlax' },
 		{ 'Latitude': 51.82290070000001, 'Longtitude': 4.880012499999999, 'Pokemon': 'Pikachu' }
 	]
 
-	constructor(private geolocation: Geolocation, private nativeGeocoder: NativeGeocoder) {
+	pokemonToCatch: string;
+
+	constructor(private router: Router, private geolocation: Geolocation, private nativeGeocoder: NativeGeocoder, private pokeService: PokemonService) {
 	}
 
 	ionViewDidEnter() {
+		this.generateRandomPokemon();
 		this.watchLocation().subscribe(data => {
 			this.loadmap(data.coords.latitude, data.coords.longitude);
 			this.checkCoordsWithPokemon(data.coords.latitude, data.coords.longitude);
 		})
+	}
+
+	generateRandomPokemon() {
+		for(var i = 0; i < 10; i++) {
+			var offset = Math.floor((Math.random() * 125) + 1);
+			var secondRandomNumber = Math.floor((Math.random() * 24) + 0);
+			this.pokeService.getPokemon(offset).subscribe(res => {
+				var pokemon = res[secondRandomNumber];
+				//uiteraard moeten de lat en lon ook random gegenereerd worden binnen den bosch
+				var newCache = {'Latitude': 51.824889999999996, 'Longtitude': 4.8799534, 'Pokemon': pokemon.name, 'ImgURL': pokemon.image};
+				this.pokemonCaches2.push(newCache);
+			})
+		}
 	}
 
 	loadmap(latitude: number, longitude: number) {
@@ -113,19 +132,24 @@ export class Tab2Page {
 		}
 
 		var newMarker: any;
+		var newPokemonMarker = { 'Pokemon': pokemon, 'Icon': null };
 
 		//locationfound doet wss niks
-		this.map.locate({ setView: true }).on("locationfound", (e: any) => {
-			newMarker = marker([latitude, longitude], {
-				draggable:
-					false
-			}).addTo(this.map);
-			newMarker.bindPopup(pokemon).openPopup();
-			newMarker.on('click', function(e) {
-				console.log("Gevangen!")
-			  });
-
+		//this.map.locate({ setView: true }).on("locationfound", (e: any) => {
+		newMarker = marker([latitude, longitude], {
+			draggable:
+				false
+		}).addTo(this.map);
+		newMarker.bindPopup(pokemon).openPopup();
+		newMarker.on('click', () => {
+			this.router.navigate(['/tabs/tab2/catch-pokemon', pokemon]);
 		});
+
+		newPokemonMarker.Icon = newMarker;
+
+		//dit werkt nog niet fantastisch
+		//this.pokemonMarkers.push(newPokemonMarker);
+		//});
 
 		//marker([51.5, -0.09], {icon: pikachuIcon}).addTo(map);
 	}
