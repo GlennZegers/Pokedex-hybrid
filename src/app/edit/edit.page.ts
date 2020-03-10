@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PokemonService } from '../services/pokemon.service';
 import { Router } from '@angular/router';
+import { ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-edit',
@@ -9,11 +10,12 @@ import { Router } from '@angular/router';
 })
 export class EditPage implements OnInit {
   pokemon={
+    name:"",
     height: 0,
     weight: 0
   }
   types=[]
-  constructor(private pokeService: PokemonService, private router: Router) {
+  constructor(private pokeService: PokemonService, private router: Router,public toastController: ToastController) {
 
   }
 
@@ -27,7 +29,19 @@ export class EditPage implements OnInit {
   }
 
   onSubmit(){
-    this.pokeService.updatePokemon(this.pokemon)
-    this.router.navigate(['/'])
+    if(this.pokemon.name===""){
+      this.presentToast(`Please fill in all the fields`)
+    }else{
+      this.pokeService.updatePokemon(this.pokemon)
+      this.router.navigate(['/'])
+    } 
+  }
+
+  async presentToast(message) {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2000
+    });
+    toast.present();
   }
 }
