@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 
 export class DetailsPage implements OnInit {
   id= 0;
-  pokemon={}
+  pokemon=<any>{}
   image="";
   constructor(private pokeService: PokemonService, private router: Router) {
 
@@ -26,8 +26,8 @@ export class DetailsPage implements OnInit {
       document.getElementById("buttons").style.display="none";
 
     }else{
-      this.pokemon = this.pokeService.getSingleAddedPokemon(this.id)
-      
+      this.pokemon = this.pokeService.getSingleAddedPokemon(this.id);
+      this.image = this.pokemon.image;
     }
   }
 

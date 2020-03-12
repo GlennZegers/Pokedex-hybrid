@@ -19,6 +19,12 @@ export class Tab1Page implements OnInit{
     this.loadPokemon();
   }
 
+  ionViewDidEnter(){
+    this.offset=0;
+    this.pokemon = [];
+    this.loadPokemon();
+  }
+
   loadPokemon(loadMore = false, event?){
     if(navigator.onLine){
       if(loadMore){
@@ -32,9 +38,6 @@ export class Tab1Page implements OnInit{
         if(event){
           event.target.complete();
         }
-              // if(this.offset === 125){
-      //   this.infinite.disabled = true;
-      // }
       } catch (error) {
         this.presentToast(`Oops, something went wrong :(`);
       }
