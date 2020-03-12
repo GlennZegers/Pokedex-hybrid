@@ -32,6 +32,8 @@
       <ion-input type="number" [(ngModel)]="pokemon.height" name="height"></ion-input>
       <ion-label>M</ion-label>
     </ion-item>
+    <ion-button (click)="takePhoto()">Take Photo</ion-button>
     <ion-button ion-button type="submit" block>Add Pokemon</ion-button>
   </form>
+  <img src={{pokemon.image}}>
 </ion-content>
