@@ -3,26 +3,10 @@ import { Router } from '@angular/router';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
 import { Map, latLng, tileLayer, Layer, marker, icon, Marker } from 'leaflet';
-import { Observable } from 'rxjs';
+// import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PokemonService } from '../services/pokemon.service';
 
-// const iconRetinaUrl = '/assets/marker-icon-2x.png';
-const iconRetinaUrl = '/assets/images/pikachu.png'
-//const iconUrl = '/assets/marker-icon.png';
-const iconUrl = '/assets/images/pikachu.png'
-const shadowUrl = '/assets/marker-shadow.png';
-const iconDefault = icon({
-	iconRetinaUrl,
-	iconUrl,
-	shadowUrl,
-	iconSize: [25, 41],
-	iconAnchor: [12, 41],
-	popupAnchor: [1, -34],
-	tooltipAnchor: [16, -28],
-	shadowSize: [41, 41]
-});
-Marker.prototype.options.icon = iconDefault;
 
 @Component({
 	selector: 'app-tab2',
@@ -33,11 +17,11 @@ export class Tab2Page {
 	map: Map;
 	pokemonMarkers: [{ 'Pokemon': string, 'Icon': marker }];
 
-	pokemonCaches2 = [];
-	pokemonCaches = [
-		{ 'Latitude': 51.824889999999996, 'Longtitude': 4.8799534, 'Pokemon': 'Snorlax' },
-		{ 'Latitude': 51.82290070000001, 'Longtitude': 4.880012499999999, 'Pokemon': 'Pikachu' }
-	]
+	pokemonCaches = [];
+	// pokemonCachesTest = [
+	// 	{ 'Latitude': 51.824889999999996, 'Longitude': 4.8799534, 'Pokemon': 'Snorlax' },
+	// 	{ 'Latitude': 51.82290070000001, 'Longitude': 4.880012499999999, 'Pokemon': 'Pikachu' }
+	// ]
 
 	pokemonToCatch: string;
 
@@ -47,22 +31,38 @@ export class Tab2Page {
 	ionViewDidEnter() {
 		this.generateRandomPokemon();
 		this.watchLocation().subscribe(data => {
-			this.loadmap(data.coords.latitude, data.coords.longitude);
-			this.checkCoordsWithPokemon(data.coords.latitude, data.coords.longitude);
+			// this.loadmap(data.coords.latitude, data.coords.longitude);
+			// this.checkCoordsWithPokemon(data.coords.latitude, data.coords.longitude);
+			console.log(data)
+			var lat = Math.random() * (51.7050 - 51.6850) + 51.6850
+			var lon = Math.random() * (5.3200 - 5.2800) + 5.2800
+			this.loadmap(lat, lon);
+			this.checkCoordsWithPokemon(lat, lon);
 		})
 	}
 
 	generateRandomPokemon() {
-		for(var i = 0; i < 10; i++) {
+		for (var i = 0; i < 10; i++) {
 			var offset = Math.floor((Math.random() * 125) + 1);
 			var secondRandomNumber = Math.floor((Math.random() * 24) + 0);
 			this.pokeService.getPokemon(offset).subscribe(res => {
 				var pokemon = res[secondRandomNumber];
-				//uiteraard moeten de lat en lon ook random gegenereerd worden binnen den bosch
-				var newCache = {'Latitude': 51.824889999999996, 'Longtitude': 4.8799534, 'Pokemon': pokemon.name, 'ImgURL': pokemon.image};
-				this.pokemonCaches2.push(newCache);
+				var randomCoords = this.generateRandomCoords();
+
+				var newCache = { 'Latitude': randomCoords.Latitude, 'Longitude': randomCoords.Longitude, 'Pokemon': pokemon.name, 'ImgURL': pokemon.image };
+				this.pokemonCaches.push(newCache);
 			})
 		}
+	}
+
+	generateRandomCoords() {
+		// Coords for center Den Bosch: 51.6978, 5.3037
+
+		var randomLat = Math.random() * (51.7050 - 51.6850) + 51.6850
+		var randomLon = Math.random() * (5.3200 - 5.2800) + 5.2800
+
+		return { 'Latitude': randomLat, 'Longitude': randomLon };
+
 	}
 
 	loadmap(latitude: number, longitude: number) {
@@ -98,30 +98,39 @@ export class Tab2Page {
 
 	checkCoordsWithPokemon(latitude: number, longitude: number) {
 		this.pokemonCaches.forEach(cache => {
-			var minLat = latitude - 2
-			var maxLat = latitude + 2
-			var minLon = longitude - 2
-			var maxLon = longitude + 2
+			var minLat = latitude - 0.005
+			var maxLat = latitude + 0.005
+			var minLon = longitude - 0.005
+			var maxLon = longitude + 0.005
 
-			if (cache.Latitude >= minLat && cache.Latitude <= maxLat && cache.Longtitude >= minLon && cache.Longtitude <= maxLon) {
-				var today = new Date();
-				var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-				console.log(time + " " + cache.Pokemon)
-
-				if (this.map != null) {
-					this.addMarker(cache.Latitude, cache.Longtitude, cache.Pokemon);
-				}
+			if (cache.Latitude >= minLat && cache.Latitude <= maxLat && cache.Longitude >= minLon && cache.Longitude <= maxLon && this.map != null) {
+				this.addMarker(cache.Latitude, cache.Longitude, cache.Pokemon, cache.ImgURL);
 			}
 		});
 	}
 
-	addMarker(latitude: number, longitude: number, pokemon: string) {
-		// var pikachuIcon = icon({
-		// 	iconUrl: '/assets/images/pikachu.png',
-		// 	iconSize: [38, 95], // size of the icon
-		// 	iconAnchor: [22, 94], // point of the icon which will correspond to marker's location
-		// 	popupAnchor: [-3, -76] // point from which the popup should open relative to the iconAnchor
-		// });
+	setMarkerIcon(url: string) {
+		// Setting defualts
+		var iconRetinaUrl = '/assets/marker-icon-2x.png';
+		var iconUrl = '/assets/marker-icon.png';
+
+		// Setting icon of pokemon
+		if (url != null || url != "") {
+			iconRetinaUrl = url;
+			iconUrl = url;
+		}
+
+		const iconDefault = icon({
+			iconRetinaUrl,
+			iconUrl,
+			iconAnchor: [12, 41],
+			tooltipAnchor: [16, -28],
+		});
+		Marker.prototype.options.icon = iconDefault;
+	}
+
+	addMarker(latitude: number, longitude: number, pokemon: string, imgURL: string) {
+		this.setMarkerIcon(imgURL);
 
 		if (this.pokemonMarkers != null) {
 			this.pokemonMarkers.forEach(marker => {
@@ -140,7 +149,7 @@ export class Tab2Page {
 			draggable:
 				false
 		}).addTo(this.map);
-		newMarker.bindPopup(pokemon).openPopup();
+		//newMarker.bindPopup(pokemon).openPopup(); //dit is handig om gelijk naar de goede coordinaten te gaan
 		newMarker.on('click', () => {
 			this.router.navigate(['/tabs/tab2/catch-pokemon', pokemon]);
 		});
@@ -149,23 +158,22 @@ export class Tab2Page {
 
 		//dit werkt nog niet fantastisch
 		//this.pokemonMarkers.push(newPokemonMarker);
+		// console.log(this.pokemonMarkers);
 		//});
-
-		//marker([51.5, -0.09], {icon: pikachuIcon}).addTo(map);
 	}
 
-	convertGeocodeToAdress(latitude, longitude) {
-		let options: NativeGeocoderOptions = {
-			useLocale: true,
-			maxResults: 5
-		};
+	// convertGeocodeToAdress(latitude, longitude) {
+	// 	let options: NativeGeocoderOptions = {
+	// 		useLocale: true,
+	// 		maxResults: 5
+	// 	};
 
-		this.nativeGeocoder.reverseGeocode(52.5072095, 13.1452818, options)
-			.then((result: NativeGeocoderResult[]) => console.log(JSON.stringify(result[0])))
-			.catch((error: any) => console.log(error));
+	// 	this.nativeGeocoder.reverseGeocode(52.5072095, 13.1452818, options)
+	// 		.then((result: NativeGeocoderResult[]) => console.log(JSON.stringify(result[0])))
+	// 		.catch((error: any) => console.log(error));
 
-		this.nativeGeocoder.forwardGeocode('Berlin', options)
-			.then((result: NativeGeocoderResult[]) => console.log('The coordinates are latitude=' + result[0].latitude + ' and longitude=' + result[0].longitude))
-			.catch((error: any) => console.log(error));
-	}
+	// 	this.nativeGeocoder.forwardGeocode('Berlin', options)
+	// 		.then((result: NativeGeocoderResult[]) => console.log('The coordinates are latitude=' + result[0].latitude + ' and longitude=' + result[0].longitude))
+	// 		.catch((error: any) => console.log(error));
+	// }
 }
