@@ -1,0 +1,73 @@
+ion-title{
+    text-transform: capitalize;
+}
+
+ion-fab{
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+}
+
+.container{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 90%;
+
+    margin: 0 auto;
+
+    text-transform: capitalize;
+
+    .name{
+        text-align: center;
+    }
+
+    img{
+        width: 200px;
+        margin: 20px 0;
+    }
+
+    .info{
+        display: flex;
+        flex-wrap: wrap;
+
+        background-color: #eb4034;
+        color: #ffffff;
+
+        padding: 10px;
+        border-radius: 10px;
+        width: 80%;
+
+        margin-bottom: 20px;
+
+        .info-item{
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+
+            height: 50px;
+            width: 50%;
+
+            margin-bottom: 10px;
+
+            text-align: center;
+
+            .info-name{
+                font-size: 20px;
+            }
+        }
+    }
+
+    .stats{
+        display: flex;
+        flex-direction: column;
+        width: 80%;
+
+        font-size: 18px;
+
+        .stat{
+            display: flex;
+            justify-content: space-between;
+        }
+    }
+}
