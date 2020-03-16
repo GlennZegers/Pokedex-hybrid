@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
-import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
-import { Map, latLng, tileLayer, Layer, marker, icon, Marker } from 'leaflet';
-// import { Observable } from 'rxjs';
+import { Map, tileLayer, marker, icon, Marker } from 'leaflet';
 import { map } from 'rxjs/operators';
+
 import { PokemonService } from '../services/pokemon.service';
 
 
@@ -15,17 +14,11 @@ import { PokemonService } from '../services/pokemon.service';
 })
 export class Tab2Page {
 	map: Map;
-	pokemonMarkers: [{ 'Pokemon': string, 'Icon': marker }];
-
+	pokemonMarkers = [];
 	pokemonCaches = [];
-	// pokemonCachesTest = [
-	// 	{ 'Latitude': 51.824889999999996, 'Longitude': 4.8799534, 'Pokemon': 'Snorlax' },
-	// 	{ 'Latitude': 51.82290070000001, 'Longitude': 4.880012499999999, 'Pokemon': 'Pikachu' }
-	// ]
-
 	pokemonToCatch: string;
 
-	constructor(private router: Router, private geolocation: Geolocation, private nativeGeocoder: NativeGeocoder, private pokeService: PokemonService) {
+	constructor(private router: Router, private geolocation: Geolocation, private pokeService: PokemonService) {
 	}
 
 	ionViewDidEnter() {
@@ -33,7 +26,8 @@ export class Tab2Page {
 		this.watchLocation().subscribe(data => {
 			// this.loadmap(data.coords.latitude, data.coords.longitude);
 			// this.checkCoordsWithPokemon(data.coords.latitude, data.coords.longitude);
-			console.log(data)
+
+			// This is for testing at home
 			var lat = Math.random() * (51.7050 - 51.6850) + 51.6850
 			var lon = Math.random() * (5.3200 - 5.2800) + 5.2800
 			this.loadmap(lat, lon);
@@ -49,10 +43,15 @@ export class Tab2Page {
 				var pokemon = res[secondRandomNumber];
 				var randomCoords = this.generateRandomCoords();
 
-				var newCache = { 'Latitude': randomCoords.Latitude, 'Longitude': randomCoords.Longitude, 'Pokemon': pokemon.name, 'ImgURL': pokemon.image };
+				var newCache = { 'Latitude': randomCoords.Latitude, 'Longitude': randomCoords.Longitude, 'Pokemon': this.startPokemonNameUppercase(pokemon.name), 'ImgURL': pokemon.image };
 				this.pokemonCaches.push(newCache);
 			})
 		}
+	}
+
+	startPokemonNameUppercase(name: string) : string{
+		var firstLetter = name[0].toUpperCase();
+		return firstLetter + name.slice(1);
 	}
 
 	generateRandomCoords() {
@@ -89,7 +88,6 @@ export class Tab2Page {
 		return watch.pipe(
 			map(data => {
 				this.checkCoordsWithPokemon(data.coords.latitude, data.coords.longitude);
-				//this.convertGeocodeToAdress(data.coords.latitude, data.coords.longitude);
 
 				return data;
 			})
@@ -110,7 +108,7 @@ export class Tab2Page {
 	}
 
 	setMarkerIcon(url: string) {
-		// Setting defualts
+		// Setting defaults
 		var iconRetinaUrl = '/assets/marker-icon-2x.png';
 		var iconUrl = '/assets/marker-icon.png';
 
@@ -134,46 +132,23 @@ export class Tab2Page {
 
 		if (this.pokemonMarkers != null) {
 			this.pokemonMarkers.forEach(marker => {
-				if (marker.Pokemon == pokemon) {
+				if (marker == pokemon) {
 					return;
 				}
 			})
 		}
 
 		var newMarker: any;
-		var newPokemonMarker = { 'Pokemon': pokemon, 'Icon': null };
 
-		//locationfound doet wss niks
-		//this.map.locate({ setView: true }).on("locationfound", (e: any) => {
 		newMarker = marker([latitude, longitude], {
 			draggable:
 				false
 		}).addTo(this.map);
-		//newMarker.bindPopup(pokemon).openPopup(); //dit is handig om gelijk naar de goede coordinaten te gaan
+
 		newMarker.on('click', () => {
 			this.router.navigate(['/tabs/tab2/catch-pokemon', pokemon]);
 		});
 
-		newPokemonMarker.Icon = newMarker;
-
-		//dit werkt nog niet fantastisch
-		//this.pokemonMarkers.push(newPokemonMarker);
-		// console.log(this.pokemonMarkers);
-		//});
+		this.pokemonMarkers.push(pokemon);
 	}
-
-	// convertGeocodeToAdress(latitude, longitude) {
-	// 	let options: NativeGeocoderOptions = {
-	// 		useLocale: true,
-	// 		maxResults: 5
-	// 	};
-
-	// 	this.nativeGeocoder.reverseGeocode(52.5072095, 13.1452818, options)
-	// 		.then((result: NativeGeocoderResult[]) => console.log(JSON.stringify(result[0])))
-	// 		.catch((error: any) => console.log(error));
-
-	// 	this.nativeGeocoder.forwardGeocode('Berlin', options)
-	// 		.then((result: NativeGeocoderResult[]) => console.log('The coordinates are latitude=' + result[0].latitude + ' and longitude=' + result[0].longitude))
-	// 		.catch((error: any) => console.log(error));
-	// }
 }

@@ -24,14 +24,16 @@ export class CatchPokemonPage implements OnInit {
 
 	catchPokemon(textInput: string) {
 		this.userHasTried = true;
+
 		if (this.pokemonToCatch == textInput) {
 			this.resultMessage = "Congrats! " + this.pokemonToCatch + " is caught!"
 		} else {
 			this.resultMessage = "Too bad. " + this.pokemonToCatch + " ran away"
 		}
 
-		timeout(3000);
-
-		//this.router.navigate(['/tabs/tab2'])
+		// hierna moet die nog van de lijst afgehaald worden
+		setTimeout(() => {
+			this.router.navigate(['/tabs/tab2'])
+		}, 2500);
 	}
 }
