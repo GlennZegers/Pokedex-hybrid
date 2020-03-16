@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, NavigationStart } from '@angular/router';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { Map, tileLayer, marker, icon, Marker, layerGroup } from 'leaflet';
 import { map } from 'rxjs/operators';
@@ -19,6 +19,18 @@ export class Tab2Page {
 	pokemonToCatch: string;
 
 	constructor(private router: Router, private geolocation: Geolocation, private pokeService: PokemonService) {
+		// Subscribing previous urls
+		this.router.events
+            .subscribe((event) => {
+              if (event instanceof NavigationStart) {
+				  // When url matches 'Catch pokemon page', someone tried to catch a pokemon
+				  if (this.router.url.includes('/tabs/tab2/catch-pokemon/')) {
+					  // This pokemon's name is split from the url and deleted from the map
+					  var pokemonName = this.router.url.split('/')[4];
+					  this.removeMarker(pokemonName);
+				  }
+              }
+            });
 		this.generateRandomPokemon();
 	}
 
@@ -27,7 +39,7 @@ export class Tab2Page {
 			// this.loadmap(data.coords.latitude, data.coords.longitude);
 			// this.checkCoordsWithPokemon(data.coords.latitude, data.coords.longitude);
 
-			// This is for testing at home
+			// This is for testing at home, because Pokemons coords are based in Den Bosch
 			var lat = Math.random() * (51.7050 - 51.6850) + 51.6850
 			var lon = Math.random() * (5.3200 - 5.2800) + 5.2800
 			this.loadmap(lat, lon);
@@ -37,13 +49,16 @@ export class Tab2Page {
 
 	generateRandomPokemon() {
 		for (var i = 0; i < 10; i++) {
+			// Setting random numbers to make it as random as possible
 			var offset = Math.floor((Math.random() * 125) + 1);
 			var secondRandomNumber = Math.floor((Math.random() * 24) + 0);
+
 			this.pokeService.getPokemon(offset).subscribe(res => {
 				var pokemon = res[secondRandomNumber];
 				var randomCoords = this.generateRandomCoords();
 
-				var newCache = { 'Latitude': randomCoords.Latitude, 'Longitude': randomCoords.Longitude, 'Pokemon': this.startPokemonNameUppercase(pokemon.name), 'ImgURL': pokemon.image };
+				var newCache = { 'Latitude': randomCoords.Latitude, 'Longitude': randomCoords.Longitude, 'Pokemon': this.startPokemonNameUppercase(pokemon.name), 
+					'ImgURL': pokemon.image };
 				this.pokemonCaches.push(newCache);
 			})
 		}
@@ -74,20 +89,10 @@ export class Tab2Page {
 		}).addTo(this.map);
 	}
 
-	getCurrentLocation() {
-		this.geolocation.getCurrentPosition().then((resp) => {
-			console.log(resp)
-		}).catch((error) => {
-			console.log('Error getting location', error);
-		});
-	}
-
 	watchLocation() {
 		let watch = this.geolocation.watchPosition();
 		return watch.pipe(
 			map(data => {
-				this.checkCoordsWithPokemon(data.coords.latitude, data.coords.longitude);
-
 				return data;
 			})
 		);
@@ -100,6 +105,7 @@ export class Tab2Page {
 			var minLon = longitude - 0.005
 			var maxLon = longitude + 0.005
 
+			// Coords between these numbers are considered 'close by'
 			if (cache.Latitude >= minLat && cache.Latitude <= maxLat && cache.Longitude >= minLon && cache.Longitude <= maxLon && this.map != null) {
 				this.addMarker(cache.Latitude, cache.Longitude, cache.Pokemon, cache.ImgURL);
 			} else {
@@ -131,6 +137,7 @@ export class Tab2Page {
 	addMarker(latitude: number, longitude: number, pokemon: string, imgURL: string) {
 		this.setMarkerIcon(imgURL);
 
+		// If array is null or marker already exists -> exit method
 		if (this.pokemonMarkers != null) {
 			this.pokemonMarkers.forEach(marker => {
 				if (marker.Pokemon == pokemon) {

@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { timeout } from 'rxjs/operators';
 
 @Component({
 	selector: 'app-catch-pokemon',
@@ -30,8 +29,8 @@ export class CatchPokemonPage implements OnInit {
 		} else {
 			this.resultMessage = "Too bad. " + this.pokemonToCatch + " ran away"
 		}
-
-		// hierna moet die nog van de lijst afgehaald worden
+		
+		// Setting timeout before returning to map
 		setTimeout(() => {
 			this.router.navigate(['/tabs/tab2'])
 		}, 2500);
