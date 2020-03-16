@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
-import { Map, tileLayer, marker, icon, Marker } from 'leaflet';
+import { Map, tileLayer, marker, icon, Marker, layerGroup } from 'leaflet';
 import { map } from 'rxjs/operators';
 
 import { PokemonService } from '../services/pokemon.service';
@@ -19,10 +19,10 @@ export class Tab2Page {
 	pokemonToCatch: string;
 
 	constructor(private router: Router, private geolocation: Geolocation, private pokeService: PokemonService) {
+		this.generateRandomPokemon();
 	}
 
 	ionViewDidEnter() {
-		this.generateRandomPokemon();
 		this.watchLocation().subscribe(data => {
 			// this.loadmap(data.coords.latitude, data.coords.longitude);
 			// this.checkCoordsWithPokemon(data.coords.latitude, data.coords.longitude);
@@ -49,7 +49,7 @@ export class Tab2Page {
 		}
 	}
 
-	startPokemonNameUppercase(name: string) : string{
+	startPokemonNameUppercase(name: string): string {
 		var firstLetter = name[0].toUpperCase();
 		return firstLetter + name.slice(1);
 	}
@@ -61,7 +61,6 @@ export class Tab2Page {
 		var randomLon = Math.random() * (5.3200 - 5.2800) + 5.2800
 
 		return { 'Latitude': randomLat, 'Longitude': randomLon };
-
 	}
 
 	loadmap(latitude: number, longitude: number) {
@@ -103,6 +102,8 @@ export class Tab2Page {
 
 			if (cache.Latitude >= minLat && cache.Latitude <= maxLat && cache.Longitude >= minLon && cache.Longitude <= maxLon && this.map != null) {
 				this.addMarker(cache.Latitude, cache.Longitude, cache.Pokemon, cache.ImgURL);
+			} else {
+				this.removeMarker(cache.Pokemon);
 			}
 		});
 	}
@@ -132,7 +133,7 @@ export class Tab2Page {
 
 		if (this.pokemonMarkers != null) {
 			this.pokemonMarkers.forEach(marker => {
-				if (marker == pokemon) {
+				if (marker.Pokemon == pokemon) {
 					return;
 				}
 			})
@@ -143,12 +144,26 @@ export class Tab2Page {
 		newMarker = marker([latitude, longitude], {
 			draggable:
 				false
-		}).addTo(this.map);
-
-		newMarker.on('click', () => {
+		}).on('click', () => {
 			this.router.navigate(['/tabs/tab2/catch-pokemon', pokemon]);
 		});
 
-		this.pokemonMarkers.push(pokemon);
+		var newLayerGroup = layerGroup([newMarker]);
+		this.map.addLayer(newLayerGroup);
+
+		var newPokemonMarker = { 'Pokemon': pokemon, 'LayerGroup': newLayerGroup}
+		this.pokemonMarkers.push(newPokemonMarker);
 	}
+
+	removeMarker(pokemon: string) {
+		if (this.pokemonMarkers != null) {
+			this.pokemonMarkers.forEach((marker, index) => {
+				if (marker.Pokemon == pokemon) {
+					this.map.removeLayer(marker.LayerGroup);
+					this.pokemonMarkers.splice(index, 1);
+				}
+			})
+		}
+	}
+
 }

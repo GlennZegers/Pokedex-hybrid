@@ -6,7 +6,6 @@ import { FormsModule } from '@angular/forms';
 import { Tab2Page } from './tab2.page';
 import { ExploreContainerComponentModule } from '../explore-container/explore-container.module';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
-import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
 
 @NgModule({
   imports: [
@@ -19,7 +18,6 @@ import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
   declarations: [Tab2Page],
   providers: [
     Geolocation,
-    NativeGeocoder
   ]
 })
 export class Tab2PageModule {}
