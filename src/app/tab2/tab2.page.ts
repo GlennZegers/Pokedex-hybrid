@@ -5,6 +5,7 @@ import { Map, tileLayer, marker, icon, Marker, layerGroup } from 'leaflet';
 import { map } from 'rxjs/operators';
 
 import { PokemonService } from '../services/pokemon.service';
+import { GlobalService } from '../services/global.service';
 
 
 @Component({
@@ -18,7 +19,7 @@ export class Tab2Page {
 	pokemonCaches = [];
 	pokemonToCatch: string;
 
-	constructor(private router: Router, private geolocation: Geolocation, private pokeService: PokemonService) {
+	constructor(private router: Router, private geolocation: Geolocation, private pokeService: PokemonService, private globalService: GlobalService) {
 		// Subscribing previous urls
 		this.router.events
             .subscribe((event) => {
@@ -27,7 +28,13 @@ export class Tab2Page {
 				  if (this.router.url.includes('/tabs/tab2/catch-pokemon/')) {
 					  // This pokemon's name is split from the url and deleted from the map
 					  var pokemonName = this.router.url.split('/')[4];
+					  var pokemonId = parseInt(this.router.url.split('/')[5]);
+
+					  // Remove pokemon from map
 					  this.removeMarker(pokemonName);
+
+					  // Add pokemon to list
+					  this.globalService.addPokemon(pokemonId);
 				  }
               }
             });
@@ -58,9 +65,9 @@ export class Tab2Page {
 				var randomCoords = this.generateRandomCoords();
 
 				var newCache = { 'Latitude': randomCoords.Latitude, 'Longitude': randomCoords.Longitude, 'Pokemon': this.startPokemonNameUppercase(pokemon.name), 
-					'ImgURL': pokemon.image };
+					'ImgURL': pokemon.image, "Id": pokemon.pokeIndex};
 				this.pokemonCaches.push(newCache);
-			})
+			}, err => {console.log(err)})
 		}
 	}
 
@@ -107,7 +114,7 @@ export class Tab2Page {
 
 			// Coords between these numbers are considered 'close by'
 			if (cache.Latitude >= minLat && cache.Latitude <= maxLat && cache.Longitude >= minLon && cache.Longitude <= maxLon && this.map != null) {
-				this.addMarker(cache.Latitude, cache.Longitude, cache.Pokemon, cache.ImgURL);
+				this.addMarker(cache.Latitude, cache.Longitude, cache.Pokemon, cache.ImgURL, cache.Id);
 			} else {
 				this.removeMarker(cache.Pokemon);
 			}
@@ -134,7 +141,7 @@ export class Tab2Page {
 		Marker.prototype.options.icon = iconDefault;
 	}
 
-	addMarker(latitude: number, longitude: number, pokemon: string, imgURL: string) {
+	addMarker(latitude: number, longitude: number, pokemon: string, imgURL: string, pokemonId: number) {
 		this.setMarkerIcon(imgURL);
 
 		// If array is null or marker already exists -> exit method
@@ -152,7 +159,7 @@ export class Tab2Page {
 			draggable:
 				false
 		}).on('click', () => {
-			this.router.navigate(['/tabs/tab2/catch-pokemon', pokemon]);
+			this.router.navigate(['/tabs/tab2/catch-pokemon', pokemon, pokemonId]);
 		});
 
 		var newLayerGroup = layerGroup([newMarker]);

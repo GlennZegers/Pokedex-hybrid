@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
+import { GlobalService } from '../../services/global.service';
+
 @Component({
 	selector: 'app-catch-pokemon',
 	templateUrl: './catch-pokemon.page.html',
@@ -12,7 +14,7 @@ export class CatchPokemonPage implements OnInit {
 	resultMessage: string;
 	userHasTried = false;
 
-	constructor(private route: ActivatedRoute, private router: Router) {
+	constructor(private route: ActivatedRoute, private router: Router, private globalService: GlobalService) {
 		this.route.params.subscribe(params => {
 			this.pokemonToCatch = params['pokemon'];
 		});
@@ -26,8 +28,10 @@ export class CatchPokemonPage implements OnInit {
 
 		if (this.pokemonToCatch == textInput) {
 			this.resultMessage = "Congrats! " + this.pokemonToCatch + " is caught!"
+			this.globalService.catchedCurrentPokemon = true;
 		} else {
 			this.resultMessage = "Too bad. " + this.pokemonToCatch + " ran away"
+			this.globalService.catchedCurrentPokemon = false;
 		}
 		
 		// Setting timeout before returning to map
