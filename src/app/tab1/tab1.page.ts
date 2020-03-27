@@ -32,7 +32,7 @@ export class Tab1Page implements OnInit{
 	}
 
   loadPokemon(loadMore = false, event?){
-    if(this.isConnected){
+    if(this.isConnected()){
       if(loadMore){
         this.offset += 25
       }
