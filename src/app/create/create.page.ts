@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { PokemonService } from '../services/pokemon.service';
 import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
+import { Network } from '@ionic-native/network/ngx';
+
 import { PhotoService } from '../services/photo.service';
 
 @Component({
@@ -55,16 +57,22 @@ export class CreatePage implements OnInit {
 		},]
 	}
 
-	constructor(private pokeService: PokemonService, private router: Router, public toastController: ToastController, public photoService: PhotoService) { }
+	constructor(private pokeService: PokemonService, private router: Router, public toastController: ToastController, public photoService: PhotoService,
+		private network: Network) { }
 
 	ngOnInit() {
-		if (navigator.onLine) {
+		if (this.isConnected) {
 			this.pokeService.getTypes().subscribe(res => {
 				this.types = res['results'];
 			})
 		} else {
 			this.presentToast(`Couldn't retrieve types, check your connection`);
 		}
+	}
+
+	isConnected(): boolean {
+		let conntype = this.network.type;
+		return conntype && conntype !== 'unknown' && conntype !== 'none';
 	}
 
 	onSubmit() {

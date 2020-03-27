@@ -3,6 +3,8 @@ import { Router, NavigationStart } from '@angular/router';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { Map, tileLayer, marker, icon, Marker, layerGroup } from 'leaflet';
 import { map } from 'rxjs/operators';
+import { ToastController } from '@ionic/angular';
+import { Network } from '@ionic-native/network/ngx';
 
 import { PokemonService } from '../services/pokemon.service';
 import { GlobalService } from '../services/global.service';
@@ -19,29 +21,35 @@ export class Tab2Page {
 	pokemonCaches = [];
 	pokemonToCatch: string;
 
-	constructor(private router: Router, private geolocation: Geolocation, private pokeService: PokemonService, private globalService: GlobalService) {
+	constructor(private router: Router, private geolocation: Geolocation, private pokeService: PokemonService, private globalService: GlobalService,
+		public toastController: ToastController, private network: Network) {
 		// Subscribing previous urls
 		this.router.events
-            .subscribe((event) => {
-              if (event instanceof NavigationStart) {
-				  // When url matches 'Catch pokemon page', someone tried to catch a pokemon
-				  if (this.router.url.includes('/tabs/tab2/catch-pokemon/')) {
-					  // This pokemon's name is split from the url and deleted from the map
-					  var pokemonName = this.router.url.split('/')[4];
-					  var pokemonId = parseInt(this.router.url.split('/')[5]);
+			.subscribe((event) => {
+				if (event instanceof NavigationStart) {
+					// When url matches 'Catch pokemon page', someone tried to catch a pokemon
+					if (this.router.url.includes('/tabs/tab2/catch-pokemon/')) {
+						// This pokemon's name is split from the url and deleted from the map
+						var pokemonName = this.router.url.split('/')[4];
+						var pokemonId = parseInt(this.router.url.split('/')[5]);
 
-					  // Remove pokemon from map
-					  this.removeMarker(pokemonName);
+						// Remove pokemon from map
+						this.removeMarker(pokemonName);
 
-					  // Add pokemon to list
-					  this.globalService.addPokemon(pokemonId);
-				  }
-              }
-            });
+						// Add pokemon to list
+						this.globalService.addPokemon(pokemonId);
+					}
+				}
+			});
 		this.generateRandomPokemon();
 	}
 
 	ionViewDidEnter() {
+		if (!this.isConnected) {
+			this.presentToast(`Couldn't load the map, check your connection`);
+			return;
+		}
+
 		this.watchLocation().subscribe(data => {
 			// this.loadmap(data.coords.latitude, data.coords.longitude);
 			// this.checkCoordsWithPokemon(data.coords.latitude, data.coords.longitude);
@@ -54,6 +62,11 @@ export class Tab2Page {
 		})
 	}
 
+	isConnected(): boolean {
+		let conntype = this.network.type;
+		return conntype && conntype !== 'unknown' && conntype !== 'none';
+	}
+
 	generateRandomPokemon() {
 		for (var i = 0; i < 10; i++) {
 			// Setting random numbers to make it as random as possible
@@ -64,10 +77,12 @@ export class Tab2Page {
 				var pokemon = res[secondRandomNumber];
 				var randomCoords = this.generateRandomCoords();
 
-				var newCache = { 'Latitude': randomCoords.Latitude, 'Longitude': randomCoords.Longitude, 'Pokemon': this.startPokemonNameUppercase(pokemon.name), 
-					'ImgURL': pokemon.image, "Id": pokemon.pokeIndex};
+				var newCache = {
+					'Latitude': randomCoords.Latitude, 'Longitude': randomCoords.Longitude, 'Pokemon': this.startPokemonNameUppercase(pokemon.name),
+					'ImgURL': pokemon.image, 'Id': pokemon.pokeIndex
+				};
 				this.pokemonCaches.push(newCache);
-			}, err => {console.log(err)})
+			}, err => { this.presentToast(`Oops, something went wrong :( Pokemon could not be loaded`); })
 		}
 	}
 
@@ -97,12 +112,16 @@ export class Tab2Page {
 	}
 
 	watchLocation() {
-		let watch = this.geolocation.watchPosition();
-		return watch.pipe(
-			map(data => {
-				return data;
-			})
-		);
+		try {
+			let watch = this.geolocation.watchPosition();
+			return watch.pipe(
+				map(data => {
+					return data;
+				})
+			);
+		} catch (error) {
+			this.presentToast(`Oops, something went wrong :(`);
+		}
 	}
 
 	checkCoordsWithPokemon(latitude: number, longitude: number) {
@@ -165,7 +184,7 @@ export class Tab2Page {
 		var newLayerGroup = layerGroup([newMarker]);
 		this.map.addLayer(newLayerGroup);
 
-		var newPokemonMarker = { 'Pokemon': pokemon, 'LayerGroup': newLayerGroup}
+		var newPokemonMarker = { 'Pokemon': pokemon, 'LayerGroup': newLayerGroup }
 		this.pokemonMarkers.push(newPokemonMarker);
 	}
 
@@ -178,6 +197,14 @@ export class Tab2Page {
 				}
 			})
 		}
+	}
+
+	async presentToast(message) {
+		const toast = await this.toastController.create({
+			message,
+			duration: 2000
+		});
+		toast.present();
 	}
 
 }
