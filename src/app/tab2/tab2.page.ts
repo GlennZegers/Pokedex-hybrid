@@ -44,7 +44,6 @@ export class Tab2Page {
 					}
 				}
 			});
-		this.generateRandomPokemon();
 	}
 
 	ionViewDidEnter() {
@@ -54,6 +53,9 @@ export class Tab2Page {
 		}
 
 		this.watchLocation().subscribe(data => {
+			if (this.pokemonCaches.length == 0) {
+				this.generateRandomPokemon(data.coords.latitude, data.coords.longitude);
+			}
 			this.loadmap(data.coords.latitude, data.coords.longitude);
 			this.checkCoordsWithPokemon(data.coords.latitude, data.coords.longitude);
 
@@ -78,7 +80,7 @@ export class Tab2Page {
 		})
 	}
 
-	generateRandomPokemon() {
+	generateRandomPokemon(latitude: number, longitude: number) {
 		for (var i = 0; i < 10; i++) {
 			// Setting random numbers to make it as random as possible
 			var offset = Math.floor((Math.random() * 125) + 1);
@@ -87,7 +89,7 @@ export class Tab2Page {
 			this.pokeService.getPokemon(offset).subscribe(res => {
 				var pokemon = res[secondRandomNumber];
 
-				var randomCoords = this.generateRandomCoords();
+				var randomCoords = this.generateRandomCoords(latitude, longitude);
 
 				var newCache = {
 					'Latitude': randomCoords.Latitude, 'Longitude': randomCoords.Longitude, 'Pokemon': this.startPokemonNameUppercase(pokemon.name),
@@ -103,17 +105,11 @@ export class Tab2Page {
 		return firstLetter + name.slice(1);
 	}
 
-	generateRandomCoords() {
+	generateRandomCoords(latitude: number, longitude: number) {
 		// Coords for center Den Bosch: 51.6978, 5.3037
 
-		// var randomLat = Math.random() * (51.7050 - 51.6850) + 51.6850
-		// var randomLon = Math.random() * (5.3200 - 5.2800) + 5.2800
-
-		
-		// Coords house Anna: 51.824917, 4.880049
-
-		var randomLat = Math.random() * (51.8350 - 51.8150) + 51.8150
-		var randomLon = Math.random() * (4.8900 - 4.8700) + 4.8700
+		var randomLat = Math.random() * ((latitude + 0.0100) - (latitude - 0.0100)) + (latitude - 0.0100)
+		var randomLon = Math.random() * ((longitude + 0.0100) - (longitude - 0.0100)) + (longitude - 0.0100)
 
 		return { 'Latitude': randomLat, 'Longitude': randomLon };
 	}
