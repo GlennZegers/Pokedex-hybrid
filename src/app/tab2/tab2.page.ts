@@ -36,6 +36,9 @@ export class Tab2Page {
 						// Remove pokemon from map
 						this.removeMarker(pokemonName);
 
+						//Remove pokemon from chache list
+						this.removePokemonFromList(pokemonName);
+
 						// Add pokemon to list
 						this.globalService.addPokemon(pokemonId);
 					}
@@ -51,20 +54,28 @@ export class Tab2Page {
 		}
 
 		this.watchLocation().subscribe(data => {
-			// this.loadmap(data.coords.latitude, data.coords.longitude);
-			// this.checkCoordsWithPokemon(data.coords.latitude, data.coords.longitude);
+			this.loadmap(data.coords.latitude, data.coords.longitude);
+			this.checkCoordsWithPokemon(data.coords.latitude, data.coords.longitude);
 
 			// This is for testing at home, because Pokemons coords are based in Den Bosch
-			var lat = Math.random() * (51.7050 - 51.6850) + 51.6850
-			var lon = Math.random() * (5.3200 - 5.2800) + 5.2800
-			this.loadmap(lat, lon);
-			this.checkCoordsWithPokemon(lat, lon);
+			// var lat = Math.random() * (51.7050 - 51.6850) + 51.6850
+			// var lon = Math.random() * (5.3200 - 5.2800) + 5.2800
+			// this.loadmap(lat, lon);
+			// this.checkCoordsWithPokemon(lat, lon);
 		})
 	}
 
 	isConnected(): boolean {
 		let conntype = this.network.type;
 		return conntype && conntype !== 'unknown' && conntype !== 'none';
+	}
+
+	removePokemonFromList(pokemonName: string) {
+		this.pokemonCaches.forEach( (cache, index) => {
+			if (cache.Pokemon == pokemonName) {
+				this.pokemonCaches.splice(index, 1);
+			}
+		})
 	}
 
 	generateRandomPokemon() {
@@ -75,6 +86,7 @@ export class Tab2Page {
 
 			this.pokeService.getPokemon(offset).subscribe(res => {
 				var pokemon = res[secondRandomNumber];
+
 				var randomCoords = this.generateRandomCoords();
 
 				var newCache = {
@@ -94,8 +106,14 @@ export class Tab2Page {
 	generateRandomCoords() {
 		// Coords for center Den Bosch: 51.6978, 5.3037
 
-		var randomLat = Math.random() * (51.7050 - 51.6850) + 51.6850
-		var randomLon = Math.random() * (5.3200 - 5.2800) + 5.2800
+		// var randomLat = Math.random() * (51.7050 - 51.6850) + 51.6850
+		// var randomLon = Math.random() * (5.3200 - 5.2800) + 5.2800
+
+		
+		// Coords house Anna: 51.824917, 4.880049
+
+		var randomLat = Math.random() * (51.8350 - 51.8150) + 51.8150
+		var randomLon = Math.random() * (4.8900 - 4.8700) + 4.8700
 
 		return { 'Latitude': randomLat, 'Longitude': randomLon };
 	}
@@ -132,7 +150,7 @@ export class Tab2Page {
 			var maxLon = longitude + 0.005
 
 			// Coords between these numbers are considered 'close by'
-			if (cache.Latitude >= minLat && cache.Latitude <= maxLat && cache.Longitude >= minLon && cache.Longitude <= maxLon && this.map != null) {
+			if (cache.Latitude >= minLat && cache.Latitude <= maxLat && cache.Longitude >= minLon && cache.Longitude <= maxLon && this.map != null ) {
 				this.addMarker(cache.Latitude, cache.Longitude, cache.Pokemon, cache.ImgURL, cache.Id);
 			} else {
 				this.removeMarker(cache.Pokemon);
