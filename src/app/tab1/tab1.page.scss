@@ -1,3 +1,13 @@
 ion-content ion-toolbar {
   --background: translucent;
 }
+
+ion-fab{
+  position: fixed;
+  right: 15px;
+  bottom: 15px;
+}
+
+#pokemon-img {
+  background: #ffffff;
+}

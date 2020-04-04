@@ -1,0 +1,15 @@
+<ion-content>
+	<ion-card>
+		<ion-card-header>
+			<ion-card-title>Catch your pokemon!</ion-card-title>
+		  </ion-card-header>
+		<ion-card-content>
+			<p *ngIf="userHasTried == false">Fill in the name of the pokemon you try to catch. 
+				Be careful! Input is case sensitive so make sure to start pokemons name with a capital letter.</p>
+			<ion-input placeholder="Fill in the name" [(ngModel)]="inputPokemonName" *ngIf="userHasTried == false">
+			</ion-input>
+			<ion-button (click)="catchPokemon(inputPokemonName)" *ngIf="userHasTried == false">Catch!</ion-button>
+			<p>{{ resultMessage }}</p>
+		</ion-card-content>
+	</ion-card>
+</ion-content>

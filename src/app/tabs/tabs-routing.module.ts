@@ -24,6 +24,11 @@ const routes: Routes = [
             path: '',
             loadChildren: () =>
               import('../tab2/tab2.module').then(m => m.Tab2PageModule)
+          },
+          {
+            path: 'catch-pokemon/:pokemon/:id',
+            loadChildren: () =>
+              import('../tab2/catch-pokemon/catch-pokemon.module').then(m => m.CatchPokemonPageModule)
           }
         ]
       },

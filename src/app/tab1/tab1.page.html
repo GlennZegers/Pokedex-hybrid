@@ -7,16 +7,14 @@
 </ion-header>
 
 <ion-content>
-  <!-- <ion-header collapse="condense" style="background: #ffffff;">
-    <ion-toolbar>
-      <ion-title size="large">Pokedex</ion-title>
-    </ion-toolbar>
-  </ion-header> -->
+  <ion-fab>
+    <ion-fab-button routerLink="/create" style="font-size: 40px;">+</ion-fab-button>
+  </ion-fab>
 
   <ion-list>
-    <ion-item *ngFor="let poke of pokemon;" [routerLink]="poke.pokeIndex">
+    <ion-item *ngFor="let poke of pokemon;" routerLink="/details/{{poke.pokeIndex}}" href="/details">
       <ion-avatar slot="start">
-        <img [src]="poke.image" style="background: #ffffff;">
+        <img [src]="poke.image" id="pokemon-img">
       </ion-avatar>
       <ion-label class="ion-text-capitalize">
         <h2>{{poke.name}}</h2>
@@ -29,4 +27,5 @@
     <ion-infinite-scroll-content  loadingSpinner="bubbles" loadingText="Loading more Pokemon...">
     </ion-infinite-scroll-content>
   </ion-infinite-scroll>
+
 </ion-content>

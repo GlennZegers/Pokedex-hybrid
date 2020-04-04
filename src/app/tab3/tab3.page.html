@@ -1,17 +1,37 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>
-      Tab 3
-    </ion-title>
-  </ion-toolbar>
+	<ion-toolbar>
+		<ion-title>
+			My pokemons
+		</ion-title>
+	</ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 3</ion-title>
-    </ion-toolbar>
-  </ion-header>
+	<ion-header collapse="condense">
+		<ion-toolbar>
+			<ion-title size="large">My Pokemons</ion-title>
+		</ion-toolbar>
+	</ion-header>
 
-  <app-explore-container name="Tab 3 page"></app-explore-container>
+	<ion-list>
+		<ion-item *ngFor="let pokemon of myPokemon">
+			<ion-avatar slot="start">
+				<img [src]="pokemon.sprites.front_default" id="pokemon-img">
+			</ion-avatar>
+			<ion-label class="ion-text-capitalize">
+				<h2>{{pokemon.name}}</h2>
+				<p># {{pokemon.id}}</p>
+			</ion-label>
+		</ion-item>
+	</ion-list>
+
+	<ion-card *ngIf="myPokemon.length == 0">
+		<ion-card-header>
+			<ion-card-title>No pokemon found</ion-card-title>
+		</ion-card-header>
+
+		<ion-card-content>
+			Try to catch some pokemon first to display them here!
+		</ion-card-content>
+	</ion-card>
 </ion-content>
