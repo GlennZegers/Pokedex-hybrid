@@ -14,6 +14,7 @@ import { IonicStorageModule } from '@ionic/storage';
 import {HttpClientModule} from '@angular/common/http';
 
 import { Camera } from '@ionic-native/camera/ngx';
+import { OneSignal } from '@ionic-native/onesignal/ngx';
 
 @NgModule({
   declarations: [AppComponent],
@@ -23,7 +24,8 @@ import { Camera } from '@ionic-native/camera/ngx';
     StatusBar,
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    Camera
+    Camera,
+    OneSignal
   ],
   bootstrap: [AppComponent]
 })
