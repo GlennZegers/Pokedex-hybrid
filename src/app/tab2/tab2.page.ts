@@ -145,8 +145,14 @@ export class Tab2Page {
 			var minLon = longitude - 0.005
 			var maxLon = longitude + 0.005
 
+			this.pokemonMarkers.forEach(marker => {
+				if (marker.Pokemon == cache.Pokemon) {
+					return;
+				}
+			})
+
 			// Coords between these numbers are considered 'close by'
-			if (cache.Latitude >= minLat && cache.Latitude <= maxLat && cache.Longitude >= minLon && cache.Longitude <= maxLon && this.map != null ) {
+			if (cache.Latitude >= minLat && cache.Latitude <= maxLat && cache.Longitude >= minLon && cache.Longitude <= maxLon && this.map != null) {
 				this.addMarker(cache.Latitude, cache.Longitude, cache.Pokemon, cache.ImgURL, cache.Id);
 			} else {
 				this.removeMarker(cache.Pokemon);
